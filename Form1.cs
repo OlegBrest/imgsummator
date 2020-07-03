@@ -308,18 +308,34 @@ namespace imgSummator
             Bitmap bitmap = new Bitmap(origBMP);
             using (Graphics gr = Graphics.FromImage(bitmap))
             {
-                gr.Clear(Color.FromArgb(0, 0, 0, 0));
+                gr.Clear(Color.FromArgb(255, 0, 0, 0));
             }
             int height = bitmap.Height;
             int width = bitmap.Width;
+
+            byte[] ByteImg = new byte[width * height * 4];
+            int nxt = 0;
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    bitmap.SetPixel(x, y, Color.FromArgb((int)colors[x, y]));
+                    byte[] nb = BitConverter.GetBytes(colors[x, y]);
+                    ByteImg[nxt] = nb[0];
+                    nxt++;
+                    ByteImg[nxt] = nb[1];
+                    nxt++;
+                    ByteImg[nxt] = nb[2];
+                    nxt++;
+                    ByteImg[nxt] = nb[3];
+                    nxt++;
                 }
             }
+            BitmapData bd = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
+            Marshal.Copy(ByteImg, 0, bd.Scan0, ByteImg.Length);
+            bitmap.UnlockBits(bd);
             return bitmap;
+            
         }
 
         /// <summary>
